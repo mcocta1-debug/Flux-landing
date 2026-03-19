@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GEEK — AI Automation That Works While You Sleep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff9d;
+    --green-dim: #00cc7a;
+    --green-glow: rgba(0, 255, 157, 0.15);
+    --bg: #060808;
+    --bg2: #0d0f0e;
+    --bg3: #111413;
+    --text: #e8f0ed;
+    --muted: #7a9088;
+    --border: rgba(0,255,157,0.12);
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* === GRID BG === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,157,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,157,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* === NAV === */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3rem;
+    background: rgba(6,8,8,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    position: relative;
+    cursor: default;
+    user-select: none;
+  }
+
+  .logo::after {
+    content: '_';
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--green); }
+
+  .nav-cta {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.5rem 1.2rem;
+    border: 1px solid var(--green);
+    color: var(--green);
+    background: transparent;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .nav-cta:hover {
+    background: var(--green-glow);
+    box-shadow: 0 0 16px rgba(0,255,157,0.2);
+  }
+
+  /* === HERO === */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+  }
+
+  .hero-badge {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--green);
+    border: 1px solid var(--border);
+    padding: 0.35rem 1rem;
+    margin-bottom: 2.5rem;
+    display: inline-block;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-badge span { color: var(--muted); }
+
+  .hero-title {
+    font-family: var(--font-mono);
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-title .glitch {
+    color: var(--green);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-title .glitch::before,
+  .hero-title .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .hero-title .glitch::before {
+    color: #ff004c;
+    animation: glitch1 4s infinite;
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+  }
+
+  .hero-title .glitch::after {
+    color: #00d4ff;
+    animation: glitch2 4s infinite;
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+  }
+
+  @keyframes glitch1 {
+    0%,90%,100% { opacity:0; transform:none }
+    92% { opacity:0.8; transform:translateX(-3px) }
+    94% { opacity:0; transform:none }
+    96% { opacity:0.6; transform:translateX(3px) }
+    98% { opacity:0 }
+  }
+
+  @keyframes glitch2 {
+    0%,90%,100% { opacity:0; transform:none }
+    91% { opacity:0; }
+    93% { opacity:0.7; transform:translateX(3px) }
+    95% { opacity:0; transform:none }
+    97% { opacity:0.5; transform:translateX(-3px) }
+    99% { opacity:0 }
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--muted);
+    max-width: 520px;
+    margin: 1.5rem auto 3rem;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-sub strong { color: var(--text); font-weight: 500; }
+
+  .typing-line {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--green);
+    margin-bottom: 3rem;
+    height: 1.4em;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .typing-line .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--green);
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: blink 0.8s step-end infinite;
+  }
+
+  /* === WAITLIST === */
+  .waitlist-box {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .waitlist-form {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+
+  .waitlist-form:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 24px rgba(0,255,157,0.1);
+  }
+
+  .waitlist-form input {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border: none;
+    padding: 1rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    outline: none;
+    letter-spacing: 0.02em;
+  }
+
+  .waitlist-form input::placeholder { color: var(--muted); }
+
+  .waitlist-form button {
+    background: var(--green);
+    border: none;
+    padding: 1rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #060808;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .waitlist-form button:hover { background: #00ffb3; }
+  .waitlist-form button:active { transform: scale(0.98); }
+
+  .waitlist-count {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  .waitlist-count .num { color: var(--green); }
+
+  .success-msg {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--green);
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    background: var(--green-glow);
+    display: none;
+  }
+
+  /* === SCROLL INDICATOR === */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeUp 0.6s 0.8s ease both;
+  }
+
+  .scroll-indicator span {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--green), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  /* === STATS === */
+  .stats {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat {
+    padding: 3rem 2rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+
+  .stat:last-child { border-right: none; }
+
+  .stat-num {
+    font-family: var(--font-mono);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    color: var(--green);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* === SECTION === */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--green);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    color: var(--muted);
+    max-width: 540px;
+    font-weight: 300;
+    margin-bottom: 3.5rem;
+    font-size: 1rem;
+  }
+
+  /* === SERVICES === */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .service-card {
+    background: var(--bg);
+    padding: 2.5rem;
+    transition: background 0.3s;
+    cursor: default;
+  }
+
+  .service-card:hover { background: var(--bg3); }
+
+  .service-icon {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--green);
+    margin-bottom: 1.25rem;
+    display: block;
+  }
+
+  .service-name {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+
+  .service-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* === HOW IT WORKS === */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: var(--font-mono);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    margin-top: -0.25rem;
+  }
+
+  .step-title {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  .step-desc {
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 500px;
+  }
+
+  /* === PRICING === */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .pricing-card {
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+
+  .pricing-card:hover { border-color: rgba(0,255,157,0.3); }
+
+  .pricing-card.featured {
+    border-color: var(--green);
+    box-shadow: 0 0 30px rgba(0,255,157,0.08);
+  }
+
+  .plan-badge {
+    position: absolute;
+    top: -1px;
+    right: 1.5rem;
+    background: var(--green);
+    color: #060808;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  .plan-name {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .plan-price {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .plan-price sup {
+    font-size: 1rem;
+    vertical-align: super;
+    color: var(--muted);
+  }
+
+  .plan-cycle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .plan-features li {
+    font-size: 0.88rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  .plan-features li::before {
+    content: '→';
+    color: var(--green);
+    font-family: var(--font-mono);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .plan-btn {
+    display: block;
+    width: 100%;
+    padding: 0.85rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: transparent;
+  }
+
+  .plan-btn:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--green-glow);
+  }
+
+  .pricing-card.featured .plan-btn {
+    background: var(--green);
+    color: #060808;
+    border-color: var(--green);
+  }
+
+  .pricing-card.featured .plan-btn:hover {
+    background: #00ffb3;
+  }
+
+  /* === CTA SECTION === */
+  .cta-section {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 6rem 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .cta-section .hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    animation: none;
+  }
+
+  /* === FOOTER === */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .footer-copy {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--green); }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .stats { grid-template-columns: 1fr; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">GEEK</div>
+  <ul class="nav-links">
+    <li><a href="#services">SERVICES</a></li>
+    <li><a href="#how">HOW IT WORKS</a></li>
+    <li><a href="#pricing">PRICING</a></li>
+  </ul>
+  <a href="#waitlist" class="nav-cta">JOIN WAITLIST</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="home">
+  <div class="hero-badge"><span>//</span> NOW BUILDING — EARLY ACCESS OPEN</div>
+  <h1 class="hero-title">
+    <span class="glitch" data-text="GEEK">GEEK</span><br>
+    <span style="color: var(--text); font-size: 0.6em; font-weight:400; letter-spacing: 0.02em;">AI AUTOMATION</span>
+  </h1>
+  <p class="hero-sub">
+    We build <strong>intelligent automation systems</strong> that run your business workflows, 
+    handle your data, and deploy AI agents — so you can focus on what actually matters.
+  </p>
+  <div class="typing-line">
+    <span id="typing-text"></span><span class="cursor"></span>
+  </div>
+
+  <div class="waitlist-box" id="waitlist">
+    <div class="waitlist-form" id="form-wrapper">
+      <input type="email" id="email-input" placeholder="your@email.com" autocomplete="email">
+      <button onclick="joinWaitlist()">JOIN WAITLIST</button>
+    </div>
+    <div class="success-msg" id="success-msg">
+      ✓ &nbsp;You're on the list. We'll be in touch soon.
+    </div>
+    <p class="waitlist-count">
+      <span class="num" id="count-display">247</span> people already waiting
+    </p>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat reveal">
+    <span class="stat-num">10×</span>
+    <span class="stat-label">faster workflow execution</span>
+  </div>
+  <div class="stat reveal">
+    <span class="stat-num">80%</span>
+    <span class="stat-label">reduction in manual tasks</span>
+  </div>
+  <div class="stat reveal">
+    <span class="stat-num">24/7</span>
+    <span class="stat-label">autonomous operation</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <span class="section-tag reveal">// WHAT WE BUILD</span>
+  <h2 class="section-title reveal">Automation that<br>thinks for itself.</h2>
+  <p class="section-sub reveal">
+    From simple task pipelines to fully autonomous AI agents — GEEK handles the complexity so you don't have to.
+  </p>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <span class="service-icon">[01]</span>
+      <div class="service-name">Workflow Automation</div>
+      <p class="service-desc">Connect your tools, eliminate repetitive tasks, and build multi-step workflows that trigger automatically — from email to CRM to invoice.</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">[02]</span>
+      <div class="service-name">AI Agents</div>
+      <p class="service-desc">Deploy intelligent agents that browse the web, write reports, respond to customers, and make decisions — unsupervised, around the clock.</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">[03]</span>
+      <div class="service-name">Data Pipelines</div>
+      <p class="service-desc">Automatically collect, clean, transform, and route your data from any source to any destination. Real-time or scheduled — your call.</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">[04]</span>
+      <div class="service-name">AI Customer Ops</div>
+      <p class="service-desc">Train AI on your business knowledge. Handle support tickets, qualify leads, answer FAQs, and escalate intelligently — zero human lag.</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">[05]</span>
+      <div class="service-name">Document Intelligence</div>
+      <p class="service-desc">Extract, classify, and act on data from PDFs, invoices, contracts, and forms — automatically filed and forwarded without human review.</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">[06]</span>
+      <div class="service-name">Custom AI Integrations</div>
+      <p class="service-desc">Already using tools you love? We integrate AI directly into Notion, Slack, Airtable, Shopify, and any API-accessible platform.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="border-top: 1px solid var(--border);">
+  <span class="section-tag reveal">// PROCESS</span>
+  <h2 class="section-title reveal">From idea to<br>running in days.</h2>
+  <p class="section-sub reveal">No lengthy discovery sprints. No bloated retainers. We move fast.</p>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="step-num">01</div>
+      <div>
+        <div class="step-title">Audit your workflow</div>
+        <p class="step-desc">We map where your team's time is being eaten — repetitive tasks, manual data entry, slow handoffs. We find the waste.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">02</div>
+      <div>
+        <div class="step-title">Design the automation</div>
+        <p class="step-desc">We architect an AI system tailored to your stack — picking the right tools, models, and logic for your specific workflow.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">03</div>
+      <div>
+        <div class="step-title">Build and deploy</div>
+        <p class="step-desc">We build it, test it, and ship it — usually within 1–2 weeks. You get a running system, not a slide deck.</p>
+      </div>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">04</div>
+      <div>
+        <div class="step-title">Monitor and improve</div>
+        <p class="step-desc">We keep your systems running, handle edge cases, and continuously tune performance. You never babysit the bots.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="border-top: 1px solid var(--border);">
+  <span class="section-tag reveal">// PRICING</span>
+  <h2 class="section-title reveal">Simple, honest pricing.</h2>
+  <p class="section-sub reveal">No hidden fees. No locked-in contracts. Cancel anytime.</p>
+  <div class="pricing-grid">
+    <div class="pricing-card reveal">
+      <div class="plan-name">STARTER</div>
+      <div class="plan-price"><sup>$</sup>499</div>
+      <div class="plan-cycle">per month</div>
+      <ul class="plan-features">
+        <li>Up to 3 automated workflows</li>
+        <li>1 AI agent deployment</li>
+        <li>5,000 automation runs/mo</li>
+        <li>Email support</li>
+        <li>Standard integrations</li>
+      </ul>
+      <a href="#waitlist" class="plan-btn">GET STARTED</a>
+    </div>
+    <div class="pricing-card featured reveal">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-name">GROWTH</div>
+      <div class="plan-price"><sup>$</sup>1,499</div>
+      <div class="plan-cycle">per month</div>
+      <ul class="plan-features">
+        <li>Unlimited workflows</li>
+        <li>5 AI agents</li>
+        <li>50,000 automation runs/mo</li>
+        <li>Priority Slack support</li>
+        <li>Custom integrations</li>
+        <li>Monthly strategy call</li>
+      </ul>
+      <a href="#waitlist" class="plan-btn">GET STARTED</a>
+    </div>
+    <div class="pricing-card reveal">
+      <div class="plan-name">ENTERPRISE</div>
+      <div class="plan-price">Custom</div>
+      <div class="plan-cycle">tailored to you</div>
+      <ul class="plan-features">
+        <li>Unlimited everything</li>
+        <li>Dedicated AI engineer</li>
+        <li>On-premise deployment</li>
+        <li>24/7 dedicated support</li>
+        <li>SLA guarantees</li>
+        <li>White-label option</li>
+      </ul>
+      <a href="#waitlist" class="plan-btn">TALK TO US</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <span class="section-tag" style="display:block; margin-bottom: 1rem;">// DON'T WAIT</span>
+  <h2 class="hero-title" style="font-size: clamp(2rem, 5vw, 3.5rem); animation: none;">
+    Your competitors<br>are already automating.
+  </h2>
+  <p style="color: var(--muted); margin: 1.5rem auto 2.5rem; max-width: 420px; font-weight: 300;">
+    Early access spots are limited. Join the waitlist and lock in your founding member rate.
+  </p>
+  <div class="waitlist-box" style="margin: 0 auto;">
+    <div class="waitlist-form" id="form-wrapper-2">
+      <input type="email" id="email-input-2" placeholder="your@email.com" autocomplete="email">
+      <button onclick="joinWaitlist2()">CLAIM YOUR SPOT</button>
+    </div>
+    <div class="success-msg" id="success-msg-2"></div>
+    <p class="waitlist-count">
+      <span class="num" id="count-display-2">247</span> people already waiting
+    </p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">GEEK</div>
+  <p class="footer-copy">© 2025 GEEK AI AUTOMATION. ALL RIGHTS RESERVED.</p>
+  <ul class="footer-links">
+    <li><a href="#">PRIVACY</a></li>
+    <li><a href="#">TERMS</a></li>
+    <li><a href="mailto:hello@geek.ai">CONTACT</a></li>
+  </ul>
+</footer>
+
+<script>
+  // Typing animation
+  const phrases = [
+    '> automating your workflows...',
+    '> deploying your AI agents...',
+    '> processing 50k tasks/day...',
+    '> saving you 40hrs/week...',
+    '> running while you sleep...',
+  ];
+  let pi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typing-text');
+
+  function type() {
+    const phrase = phrases[pi];
+    if (!deleting) {
+      el.textContent = phrase.slice(0, ci++);
+      if (ci > phrase.length) { deleting = true; setTimeout(type, 1800); return; }
+    } else {
+      el.textContent = phrase.slice(0, ci--);
+      if (ci < 0) { deleting = false; ci = 0; pi = (pi + 1) % phrases.length; }
+    }
+    setTimeout(type, deleting ? 30 : 55);
+  }
+  type();
+
+  // Waitlist logic
+  const STORAGE_KEY = 'geek_waitlist';
+
+  function getWaitlist() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+  }
+
+  function saveEmail(email) {
+    const list = getWaitlist();
+    if (!list.includes(email)) { list.push(email); localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+    return list.length;
+  }
+
+  function updateCounts(count) {
+    const base = 247;
+    const total = base + count;
+    document.getElementById('count-display').textContent = total;
+    document.getElementById('count-display-2').textContent = total;
+  }
+
+  updateCounts(getWaitlist().length);
+
+  function handleJoin(emailId, formId, successId, countId) {
+    const input = document.getElementById(emailId);
+    const email = input.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      input.style.borderBottom = '1px solid #ff004c';
+      input.focus();
+      setTimeout(() => input.style.borderBottom = '', 1500);
+      return;
+    }
+    const count = saveEmail(email);
+    updateCounts(count);
+    document.getElementById(formId).style.display = 'none';
+    const suc = document.getElementById(successId);
+    suc.textContent = '✓  You\'re in! We\'ll reach out soon. Welcome to GEEK.';
+    suc.style.display = 'block';
+  }
+
+  function joinWaitlist() { handleJoin('email-input', 'form-wrapper', 'success-msg', 'count-display'); }
+  function joinWaitlist2() { handleJoin('email-input-2', 'form-wrapper-2', 'success-msg-2', 'count-display-2'); }
+
+  document.getElementById('email-input').addEventListener('keydown', e => { if (e.key === 'Enter') joinWaitlist(); });
+  document.getElementById('email-input-2').addEventListener('keydown', e => { if (e.key === 'Enter') joinWaitlist2(); });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(r => obs.observe(r));
+</script>
+</body>
+</html>
